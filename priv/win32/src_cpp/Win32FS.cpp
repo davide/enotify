@@ -41,11 +41,11 @@ const WCHAR* string2wstring(const char *orig)
 	return pout;
 }
 
-int eNotify_addWatch(const char* char_path, long notifyFilter, bool watchSubdir)
+int eNotify_addWatch(const char* char_path, long notifyFilter, int int_watchSubdir)
 {
   const WCHAR* path = L"c:/teste";//string2wstring(path);
   DWORD error = 0;
-	//int add_watch(const WCHAR* path, long notifyFilter, bool watchSubdirs, DWORD &error,ChangeCallback changeCallback);
+  bool watchSubdir = (int_watchSubdir != 0);
   int watchId = _win32FSHook->add_watch(path, notifyFilter, watchSubdir, error, onFSEvent);
   if (watchId == 0)
     return -error;

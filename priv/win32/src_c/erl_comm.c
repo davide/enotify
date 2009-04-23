@@ -1,14 +1,11 @@
 #include "erl_comm.h"
-#include <iostream>
-#include <fstream>
-using namespace std;
 
 int read_exact(byte *buf, int len)
 {
   int i, got=0;
 
   do {
-    if ((i = fread(buf+got, sizeof(byte), len-got, stdin)) <= 0)
+    if ((i = read(0, buf+got, len-got)) <= 0)
       return(i);
     got += i;
   } while (got<len);
@@ -21,7 +18,7 @@ int write_exact(byte *buf, int len)
   int i, wrote = 0;
 
   do {
-    if ((i = fwrite(buf+wrote, sizeof(byte), len-wrote, stdout)) <= 0)
+    if ((i = write(1, buf+wrote, len-wrote)) <= 0)
       return (i);
     wrote += i;
   } while (wrote<len);

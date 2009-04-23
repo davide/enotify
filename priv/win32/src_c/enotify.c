@@ -1,6 +1,8 @@
-#include "ENotify.h"
+#include "enotify.h"
 
-int foo(int a) { return a; }
+int foo(int a) {
+	return eNotify_addWatch("c:/teste", 7L, 1);
+}
 int bar(int a) { return a; }
 
 int main()
@@ -9,9 +11,8 @@ int main()
 	
 	ETERM *tuplep, *intp;
 	ETERM *fnp, *argp;
-	int res;
+	int res=0;
 	byte buf[100];
-	long allocated, freed;
 
 	erl_init(NULL, 0);
 	
@@ -36,6 +37,7 @@ int main()
 		erl_free_term(argp);
 		erl_free_term(intp);
 	}
+	return 0;
 }
 
 void eNotifyCallback(int watchID, int action, const char* rootPath, const char* filePath)

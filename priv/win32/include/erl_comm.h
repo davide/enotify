@@ -1,3 +1,6 @@
+#include <unistd.h>
+#include <sys/types.h>
+
 typedef unsigned char byte;
 
 int read_cmd(byte *buf);

@@ -26,10 +26,13 @@ static int FILE_MODIFIED = 4L;
 static int FILE_RENAMED = 8L;
 static int FILE_ANY = FILE_CREATED | FILE_DELETED | FILE_MODIFIED | FILE_RENAMED;
 
-int eNotify_init(void);
-int eNotify_addWatch(const char* path, long notifyFilter, bool watchSubdir);
-void eNotify_removeWatch(int);
-
-extern void eNotifyCallback(int watchID, int action, const char* rootPath, const char* filePath);
+extern "C"
+{
+	int eNotify_init(void);
+	int eNotify_addWatch(const char* path, long notifyFilter, int watchSubdir);
+	void eNotify_removeWatch(int);
+	
+	extern void eNotifyCallback(int watchID, int action, const char* rootPath, const char* filePath);
+}
 
 #endif
