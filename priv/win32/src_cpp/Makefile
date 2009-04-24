@@ -38,14 +38,16 @@ HEADERS = \
 	$(INCLUDE_DIR)/WatchData.h \
 	$(INCLUDE_DIR)/Logger.h \
 	$(INCLUDE_DIR)/Win32FSHook.h \
-	$(INCLUDE_DIR)/Win32FS.h
+	$(INCLUDE_DIR)/Win32FS.h \
+	$(INCLUDE_DIR)/WinString.h
 
 SOURCES = \
 	Lock.cpp \
 	Logger.cpp \
 	WatchData.cpp \
 	Win32FS.cpp \
-	Win32FSHook.cpp
+	Win32FSHook.cpp \
+	WinString.cpp
 
 OBJECTS  = $(addprefix $(OBJDIR)/,$(notdir $(SOURCES:.cpp=.o)))
 TARGETS +=  $(OBJECTS)

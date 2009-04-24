@@ -10,6 +10,7 @@
 #include "Win32FSHook.h"
 #include "Logger.h"
 #include "Lock.h"
+#include "WinString.h"
 
 #define _ENotify_Win32FS
 
@@ -28,11 +29,11 @@ static int FILE_ANY = FILE_CREATED | FILE_DELETED | FILE_MODIFIED | FILE_RENAMED
 
 extern "C"
 {
-	int eNotify_init(void);
-	int eNotify_addWatch(const char* path, long notifyFilter, int watchSubdir);
-	void eNotify_removeWatch(int);
+  int eNotify_init(void);
+  int eNotify_addWatch(const char* path, long notifyFilter, int watchSubdir);
+  void eNotify_removeWatch(int);
 	
-	extern void eNotifyCallback(int watchID, int action, const char* rootPath, const char* filePath);
+  extern void eNotifyCallback(int watchID, int action, const char* rootPath, const char* filePath);
 }
 
 #endif

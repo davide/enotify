@@ -1,6 +1,6 @@
 -module(enotify).
 -export([start/0, start/1, stop/0, init/1]).
--export([foo/1, bar/1]).
+-export([add_watch/0, echo/1, add_watch/3, remove_watch/1, foo/1, bar/1]).
 
 start() ->
 	ExtPrg =
@@ -21,6 +21,18 @@ foo(X) ->
     call_port({foo, X}).
 bar(Y) ->
     call_port({bar, Y}).
+
+add_watch() ->
+    call_port({watch_dir, "c:/Davide Marquês", 7, 1}).
+
+add_watch(Dir, NotifyFilter, WatchSubdir) ->
+    call_port({add_watch, Dir, NotifyFilter, WatchSubdir}).
+
+remove_watch(WatchID) ->
+    call_port({add_watch, WatchID}).
+
+echo(Dir) ->
+    call_port({echo, Dir}).
 
 call_port(Msg) ->
     ?MODULE ! {call, self(), Msg},
@@ -66,7 +78,15 @@ loop(Port) ->
             exit(normal);
         {'EXIT', Port, _Reason} ->
             exit(port_terminated);
+	{Port, {data, Data}} ->
+	    handle_port_message(binary_to_term(Data)),
+	    loop(Port);
 	_Other ->
-	    io:format("received: ~p~n", [_Other]),
+	    io:format("received (unexpected): ~s~n", [_Other]),
 	    loop(Port)
     end.
+
+handle_port_message({WatchID, Action, Dir, File}) ->
+ io:format("watchID: ~p, action: ~p, dir: ~ts, file: ~ts~n", [WatchID, Action, Dir, File]);
+handle_port_message(Data) ->
+ io:format("unknown port message: ~w~n", [Data]).

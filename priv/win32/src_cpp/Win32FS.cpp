@@ -4,10 +4,9 @@ Win32FSHook *_win32FSHook;
 
 void onFSEvent(int watchID, int action, const WCHAR* wchar_rootPath, const WCHAR* wchar_filePath)
 {
-  cout << "watchID " << watchID << " belonging to " << wchar_rootPath << " got action " << action << wchar_filePath << endl;
-  // TODO: convert WCHAR* to char*
-  char *rootPath = "rootPath";
-  char *filePath = "filePath";
+  //cout << "watchID " << watchID << " belonging to " << wchar_rootPath << " got action " << action << wchar_filePath << endl;
+  const char* rootPath = wstring2string(wchar_rootPath);
+  const char* filePath = wstring2string(wchar_filePath);
   eNotifyCallback(watchID, action, rootPath, filePath);
 }
 
@@ -24,26 +23,9 @@ int eNotify_init(void)
   }
 }
 
-const WCHAR* string2wstring(const char *orig)
-{
-	const std::string input = orig;
-
-	// null-call to get the size
-	size_t needed = ::mbstowcs(NULL,&input[0],input.length());
-
-	// allocate
-	std::wstring output;
-	output.resize(needed);
-
-	// real call
-	::mbstowcs(&output[0],&input[0],input.length());
-	const WCHAR *pout = output.c_str();
-	return pout;
-}
-
 int eNotify_addWatch(const char* char_path, long notifyFilter, int int_watchSubdir)
 {
-  const WCHAR* path = L"c:/teste";//string2wstring(path);
+  const WCHAR* path = string2wstring(char_path);
   DWORD error = 0;
   bool watchSubdir = (int_watchSubdir != 0);
   int watchId = _win32FSHook->add_watch(path, notifyFilter, watchSubdir, error, onFSEvent);
@@ -96,3 +78,13 @@ void getErrorDescription(int errorCode, WCHAR *buffer, int len)
 	
 	lock.unlock();
 }
+
+/*
+int main()
+{
+  eNotify_init();
+  const char* path = "c:/Davide Marquês";
+  eNotify_addWatch(path, 7L, 1);
+  while(1) {};
+}
+*/
