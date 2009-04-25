@@ -3,13 +3,14 @@
 -export([add_watch/0, echo/1, add_watch/3, remove_watch/1, foo/1, bar/1]).
 
 start() ->
-	ExtPrg =
-		"../bin/enotify" ++
-		case os:type() of
-			win32 -> ".exe"
-			; _ -> ""
-		end,
-	start(ExtPrg).
+    ExtPrg =
+	"priv/win32/bin/enotify" ++
+	case os:type() of
+	    {win32,nt} -> ".exe";
+	    win32 -> ".exe"
+			 ; _ -> ""
+	end,
+    start(ExtPrg).
 
 start(ExtPrg) ->
 	spawn(?MODULE, init, [ExtPrg]).
@@ -69,7 +70,7 @@ loop(Port) ->
 		Other ->
 		    io:format("received: ~p~n", [Other])
 	    after 5000 ->
-		    io:format("got not reply in 5 secongs...~n"),
+		    io:format("got no reply in 5 seconds...~n"),
 		    loop(Port)
 	    end,
             loop(Port);

@@ -12,9 +12,9 @@ WARNFLAGS = -Wall
 CFLAGS = -g -O2 $(WARNFLAGS) $(INCFLAGS) $(TYPE_FLAGS)
 PROG_CFLAGS = -g -O2 $(WARNFLAGS) $(INCFLAGS) $(TYPE_FLAGS) -Ilegacy
 
-BUILD_BASEDIR = c:/Projectos/eNotify/priv/win32
+BUILD_BASEDIR = .
 OBJDIR     = $(BUILD_BASEDIR)/obj$(TYPEMARKER)
-BINDIR     = $(BUILD_BASEDIR)/../../bin
+BINDIR     = $(BUILD_BASEDIR)/bin
 INCLUDE_DIR = $(BUILD_BASEDIR)/include
 EXTERNAL_INCLUDES = -Ic:/erl5.7.1/lib/erl_interface-3.6.1/include
 
@@ -54,10 +54,17 @@ OBJECTS  = $(OBJDIR)/*.o
 #  Main targets
 ###########################################################################
 
-debug: $(TARGETS)
+all: dependencies $(TARGETS)
+
+dependencies:
+	cd src_c; make
+	cd src_cpp; make
 
 clean:
 	rm -f $(ENOTIFY_BIN)
+
+run:
+	$(ENOTIFY_BIN) "local"
 
 ###########################################################################
 #  Create directories

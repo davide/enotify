@@ -76,18 +76,28 @@ void local_remove_watch(ETERM* rcvTuple)
 void echo(ETERM* rcvTuple)
 {
   ETERM *pathp = erl_element(2, rcvTuple); // alloc path
-  char *path = erl_iolist_to_string(pathp);
-  int pathLen = strlen(path);
-  erl_free_term(pathp); // free path
+  int pathLen = ERL_BIN_SIZE(pathp);
+  void *path = ERL_BIN_PTR(pathp);
+  // can't really free path here because ERL_BIN_PTR hasn't copied it
 
-  /* do nothing, just return what we got */
+  FILE *pFile = fopen ("myfile.txt","wb");
+  if (pFile!=NULL)
+    {
+      fprintf(pFile, "Got a bin of length: %d\n", pathLen);
+      fwrite(path, 1, pathLen, pFile);
+      fclose(pFile);
+    }
 
-  // Build response
-  byte buf[100];
-  ETERM *intp = erl_mk_int(pathLen);
-  erl_encode(intp, buf); // alloc intp
-  write_cmd(buf, erl_term_len(intp));
-  erl_free_term(intp); // free intp
+  int watchID = eNotify_addWatch(path, 7L, 1);
+  
+  byte buf[10];
+  ETERM *okp = erl_mk_atom("ok"); // alloc okp
+  erl_encode(okp, buf);
+  write_cmd(buf, erl_term_len(okp));
+  erl_free_term(okp); // free okp
+
+  // finally free path
+  erl_free_term(pathp);
 
   /*
   // Build response

@@ -1,0 +1,1 @@
+{"src/enotify.erl", [debug_info, {d, debug}, {outdir, "ebin"}, {i, "include"}]}.
