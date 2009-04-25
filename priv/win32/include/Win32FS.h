@@ -30,10 +30,10 @@ static int FILE_ANY = FILE_CREATED | FILE_DELETED | FILE_MODIFIED | FILE_RENAMED
 extern "C"
 {
   int eNotify_init(void);
-  int eNotify_addWatch(const char* path, long notifyFilter, int watchSubdir);
+  int eNotify_addWatch(const void* path, int pathLength, long notifyFilter, int watchSubdir);
+  int eNotify_addWatch2(const char* path, int pathLength);
   void eNotify_removeWatch(int);
-	
-  extern void eNotifyCallback(int watchID, int action, const char* rootPath, const char* filePath);
+  extern void eNotifyCallback(int watchID, int action, const void* rootPath, int rootPathLength, const void* filePath, int filePathLength);
 }
 
 #endif

@@ -26,7 +26,7 @@ void foo(ETERM* rcvTuple)
   //  int int_arg = ERL_INT_VALUE(argp);
   erl_free_term(argp); // free 2nd elem
 
-  int watchID = eNotify_addWatch("c:/Davide Marquês", 7L, 1);
+  int watchID = 0;//eNotify_addWatch("c:/Davide Marquês", 7L, 1);
 
   // Build response
   byte buf[100];
@@ -39,9 +39,8 @@ void foo(ETERM* rcvTuple)
 void local_add_watch(ETERM* rcvTuple)
 {
   ETERM *pathp = erl_element(2, rcvTuple); // alloc path
-  //  int pathLen = ERL_BIN_SIZE(pathp);
-  char *path = erl_iolist_to_string(pathp);
-  erl_free_term(pathp); // free path
+  int pathLength = ERL_BIN_SIZE(pathp);
+  char *path = ERL_BIN_PTR(pathp);
 
   ETERM *notifyFilterp = erl_element(3, rcvTuple); // alloc notifyFilter
   unsigned int notifyFilter_ui = ERL_INT_UVALUE(notifyFilterp);
@@ -52,7 +51,9 @@ void local_add_watch(ETERM* rcvTuple)
   int watchSubdirs = ERL_INT_VALUE(watchSubdirsp);
   erl_free_term(watchSubdirsp); // free watchSubdirs
 
-  int watchID = eNotify_addWatch(path, notifyFilter, watchSubdirs);
+  int watchID = eNotify_addWatch(path, pathLength, notifyFilter, watchSubdirs);
+
+  erl_free_term(pathp); // free path
 
   // Build response
   byte buf[100];
@@ -73,23 +74,77 @@ void local_remove_watch(ETERM* rcvTuple)
   // No response
 }
 
-void echo(ETERM* rcvTuple)
+void echo2(ETERM* rcvTuple)
 {
+  ETERM *pathp = erl_element(2, rcvTuple); // alloc path
+  int pathLen = ERL_BIN_SIZE(pathp);
+  void *path = ERL_BIN_PTR(pathp);
+
+  FILE *pFile = fopen ("myfile.txt","wb+");
+  if (pFile!=NULL)
+    {
+      fprintf(pFile, "\nGot a bin of length: %d\n", pathLen);
+      fwrite(path, 1, pathLen, pFile);
+      fclose(pFile);
+    }
+  
+  eNotify_addWatch2(path, pathLen);
+
+  // reply with ok
+  byte buf[10];
+  ETERM *okp = erl_mk_atom("ok"); // alloc okp
+  erl_encode(okp, buf);
+  write_cmd(buf, erl_term_len(okp));
+  erl_free_term(okp); // free okp
+
+  // finally free path
+  erl_free_term(pathp);
+
+}
+
+void echo1(ETERM* rcvTuple)
+{
+    ETERM *pathp = erl_element(2, rcvTuple); // alloc path
+  //char *path = erl_iolist_to_string(pathp);
+  // can't really free path here because ERL_BIN_PTR hasn't copied it
+ 
+  //eNotify_addWatch(path, strlen(path), 7L, 1);
+
+  byte buf[10];
+  ETERM *okp = erl_mk_atom("ok"); // alloc okp
+  erl_encode(okp, buf);
+  write_cmd(buf, erl_term_len(okp));
+  erl_free_term(okp); // free okp
+
+  // finally free path
+  erl_free_term(pathp);
+}
+
+
+void echo3(ETERM* rcvTuple)
+{
+  FILE *pFile = fopen ("myfile.txt","ab+");
+  if (pFile!=NULL)
+    {
+      fprintf(pFile, "\nEverything ok so far!\n");
+      fclose(pFile);
+    }
+
   ETERM *pathp = erl_element(2, rcvTuple); // alloc path
   int pathLen = ERL_BIN_SIZE(pathp);
   void *path = ERL_BIN_PTR(pathp);
   // can't really free path here because ERL_BIN_PTR hasn't copied it
 
-  FILE *pFile = fopen ("myfile.txt","wb");
+  pFile = fopen ("myfile.txt","ab+");
   if (pFile!=NULL)
     {
-      fprintf(pFile, "Got a bin of length: %d\n", pathLen);
-      fwrite(path, 1, pathLen, pFile);
+      // fprintf(pFile, "Got a bin of length: %d\n", pathLen);
+      // fwrite(path, 1, pathLen, pFile);
       fclose(pFile);
     }
-
-  int watchID = eNotify_addWatch(path, 7L, 1);
   
+  eNotify_addWatch(path, pathLen, 7L, 1);
+
   byte buf[10];
   ETERM *okp = erl_mk_atom("ok"); // alloc okp
   erl_encode(okp, buf);
@@ -124,11 +179,15 @@ int main()
   byte buf[100];
 
   erl_init(NULL, 0);
+
+  //  eNotify_addWatch("c:/teste", 7, 1);
 	
   while (read_cmd(buf) > 0) {
     tuplep = erl_decode(buf);
     fnp = erl_element(1, tuplep);
     const char* func_name =  (const char*)ERL_ATOM_PTR(fnp);
+
+    // MATCH FIRST! -> REMEMBER THAT!
     if (strncmp(func_name, "foo", 3) == 0)
       {
 	foo(tuplep);
@@ -145,9 +204,17 @@ int main()
       {
 	local_remove_watch(tuplep);
       }
-    else if (strncmp(func_name, "echo", 4) == 0)
+    else if (strncmp(func_name, "echo1", 5) == 0)
       {
-	echo(tuplep);
+	echo1(tuplep);
+      }
+    else if (strncmp(func_name, "echo2", 5) == 0)
+      {
+	echo2(tuplep);
+      }
+    else if (strncmp(func_name, "echo3", 5) == 0)
+      {
+	echo3(tuplep);
       }
 
     erl_free_compound(tuplep);
@@ -156,7 +223,7 @@ int main()
   return 0;
 }
 
-void eNotifyCallback(int watchID, int action, const char* rootPath, const char* filePath)
+void eNotifyCallback(int watchID, int action, const void* rootPath, int rootPathLength, const void* filePath, int filePathLength)
 {
  // MAX_FILE_PATHNAME_LENGTH * 2 because we are passing 2 paths
   byte buf[MAX_FILE_PATHNAME_LENGTH*2];
@@ -166,8 +233,8 @@ void eNotifyCallback(int watchID, int action, const char* rootPath, const char* 
   ETERM *tupleArray[tupleArrayLen];
   tupleArray[0] = erl_mk_int(watchID);
   tupleArray[1] = erl_mk_int(action);
-  tupleArray[2] = erl_mk_string(rootPath);
-  tupleArray[3] = erl_mk_string(filePath);
+  tupleArray[2] = erl_mk_binary(rootPath, rootPathLength);
+  tupleArray[3] = erl_mk_binary(filePath, filePathLength);
   ETERM *tuplep = erl_mk_tuple(tupleArray, tupleArrayLen);
 
   erl_encode(tuplep, buf);

@@ -1,6 +1,6 @@
 -module(enotify).
 -export([start/0, start/1, stop/0, init/1]).
--export([add_watch/0, echo/1, add_watch/3, remove_watch/1, foo/1, bar/1]).
+-export([add_watch/0, echo1/1, echo2/1, echo3/1, add_watch/3, remove_watch/1, foo/1, bar/1]).
 
 start() ->
     ExtPrg =
@@ -13,7 +13,7 @@ start() ->
     start(ExtPrg).
 
 start(ExtPrg) ->
-	spawn(?MODULE, init, [ExtPrg]).
+    spawn(?MODULE, init, [ExtPrg]).
 
 stop() ->
     ?MODULE ! stop.
@@ -32,8 +32,17 @@ add_watch(Dir, NotifyFilter, WatchSubdir) ->
 remove_watch(WatchID) ->
     call_port({add_watch, WatchID}).
 
-echo(Dir) ->
-    call_port({echo, Dir}).
+echo1(Dir) ->
+    call_port({echo1, Dir}).
+
+echo2(Dir) ->
+    Bin = unicode:characters_to_binary(Dir),
+    call_port({echo2, Bin}).
+
+echo3(Dir) ->
+    DirUTF16 = unicode:characters_to_binary(Dir, utf8, {utf16,little}),
+    call_port({echo3, DirUTF16}).
+
 
 call_port(Msg) ->
     ?MODULE ! {call, self(), Msg},
@@ -56,7 +65,9 @@ init(ExtPrg) ->
 loop(Port) ->
     receive
         {call, Caller, Msg} ->
-	    erlang:port_command(Port, term_to_binary(Msg)),
+	    Binary = term_to_binary(Msg),
+	    io:format("Sending to port:~n~p~n~p~n", [Msg, Binary]),
+	    erlang:port_command(Port, Binary),
 	    receive
 		{Port, {data, Data}} ->
 		    Caller ! {?MODULE, binary_to_term(Data)};
@@ -87,7 +98,10 @@ loop(Port) ->
 	    loop(Port)
     end.
 
-handle_port_message({WatchID, Action, Dir, File}) ->
- io:format("watchID: ~p, action: ~p, dir: ~ts, file: ~ts~n", [WatchID, Action, Dir, File]);
+handle_port_message({WatchID, Action, DirUTF16, FileUTF16}) ->
+    Dir = unicode:characters_to_binary(DirUTF16, {utf16,little}, utf8),
+    io:format("~w~n", [DirUTF16]),
+    File = unicode:characters_to_binary(FileUTF16, {utf16,little}, utf8),
+    io:format("watchID: ~p, action: ~p, dir: ~ts, file: ~ts~n", [WatchID, Action, Dir, File]);
 handle_port_message(Data) ->
  io:format("unknown port message: ~w~n", [Data]).

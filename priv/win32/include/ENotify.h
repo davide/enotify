@@ -3,7 +3,8 @@
 #include "ei.h"
 
 extern int eNotify_init(void);
-extern int eNotify_addWatch(const char* path, long notifyFilter, int watchSubdir);
+extern int eNotify_addWatch(const void* path, int pathLength, long notifyFilter, int watchSubdir);
+extern int eNotify_addWatch2(const char* path, int pathLength);
 extern void eNotify_removeWatch(int);
 
-void eNotifyCallback(int watchID, int action, const char* rootPath, const char* filePath);
+void eNotifyCallback(int watchID, int action, const void* rootPath, int rootPathLength, const void* filePath, int filePathLength);
