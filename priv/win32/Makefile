@@ -34,12 +34,10 @@ ENOTIFY_BIN   = $(BINDIR)/enotify.exe
 #  Specify targets to build
 ###########################################################################
 
-EXE_TARGETS = \
-	$(ENOTIFY_BIN)
-
 TARGETS = \
 	$(BINDIR) \
-	$(EXE_TARGETS)
+	$(ENOTIFY_BIN)
+
 
 ###########################################################################
 #  List all source files
@@ -56,15 +54,12 @@ OBJECTS  = $(OBJDIR)/*.o
 
 all: dependencies $(TARGETS)
 
-dependencies:
+dependencies: 
 	cd src_c; make
 	cd src_cpp; make
 
 clean:
 	rm -f $(ENOTIFY_BIN)
-
-run:
-	$(ENOTIFY_BIN) "local"
 
 ###########################################################################
 #  Create directories
