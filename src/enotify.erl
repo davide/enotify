@@ -4,7 +4,7 @@
 
 start() ->
     ExtPrg =
-	"priv/win32/bin/enotify" ++
+	"priv/win32/executable/enotify" ++
 	case os:type() of
 	    {win32,nt} -> ".exe";
 	    win32 -> ".exe"
