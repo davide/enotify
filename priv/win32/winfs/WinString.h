@@ -4,10 +4,11 @@
 #include <windows.h>
 #include <winbase.h>
 #include <winnt.h>
-#include <cstdlib>
 #include <string>
 
-const WCHAR* string2wstring(const char* orig);
-const char* wstring2string(const WCHAR* orig);
+using namespace std;
+
+wstring UTF8BinToUtf16Str(const char* bin, int binLength);
+string UTF16toUTF8(const WCHAR* utf16);
 
 #endif

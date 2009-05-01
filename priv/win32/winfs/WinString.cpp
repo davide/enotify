@@ -1,35 +1,80 @@
 #include "WinString.h"
 
-const WCHAR* string2wstring(const char* orig)
+#include <iostream>
+#include <fstream>
+
+wstring UTF8BinToUtf16Str(const char* bin, int binLength)
 {
-  const std::string input = orig;
-
-  // null-call to get the size
-  size_t needed = ::mbstowcs(NULL,&input[0],input.length());
-
-  // allocate
-  std::wstring output;
-  output.resize(needed);
-
-  // real call
-  ::mbstowcs(&output[0],&input[0],input.length());
-  const WCHAR *pout = output.c_str();
-  return pout;
+  // Check how many WCHAR characters are needed
+  int len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, bin, binLength, NULL, 0);
+  if (0 == len)
+	return L"";
+	
+  // Convert data to UTF16
+  WCHAR utf16[len + 1];
+  utf16[len] = '\0';
+  
+  /*std::ofstream myfile( "winfs.log", std::ios::out | std::ios::binary | std::ios::app ) ;
+  //myfile << len;
+  //myfile.write((char*)&utf16, (len+1) * sizeof(WCHAR));
+  //myfile << endl;
+  */
+  int n = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, bin, binLength, &utf16[0], len);
+  /*
+  //myfile << n;
+  myfile.write((char*)&utf16, (len+1) * sizeof(WCHAR));
+  myfile << endl;
+  myfile.close();
+  */
+  
+  if (0 == n)
+	return L"";
+  return wstring(utf16);
 }
 
-const char* wstring2string(const WCHAR* orig)
+
+string UTF16toUTF8_(const WCHAR* utf16)
 {
-  const std::wstring input = orig;
+  int len = WideCharToMultiByte(CP_UTF8, 0, utf16, -1, NULL, 0, 0, 0);
+  if (0 == len)
+    return "";
 
-  // null-call to get the size
-  size_t needed = ::wcstombs(NULL,&input[0],input.length());
+  char utf8[len+1];
+  utf8[len] = '\0';
+  
+  std::ofstream myfile( "winfs.log", std::ios::out | std::ios::binary | std::ios::app ) ;
+  myfile << wcslen(utf16);
+  myfile.write((char*)&utf16, (wcslen(utf16)+1) * sizeof(WCHAR));
+  myfile << endl;
+  
+  int n = WideCharToMultiByte(CP_UTF8, 0, utf16, -1, utf8, len, 0, 0);
+  
+  myfile << n;
+  myfile.write((char*)&utf8, (len+1) * sizeof(char));
+  myfile << endl;
+  myfile.close();
+  
+  if (0 == n)
+	return "";
+  return string(utf8);
+}
 
-  // allocate
-  std::string output;
-  output.resize(needed);
 
-  // real call
-  ::wcstombs(&output[0],&input[0],input.length());
-  const char *pout = output.c_str();
-  return pout;
+string UTF16toUTF8(const WCHAR* utf16)
+{
+  int len = WideCharToMultiByte(CP_UTF8, 0, utf16, -1, NULL, 0, 0, 0);
+  if (0 == len)
+    return "";
+  char utf8[len];
+  utf8[len-1] = '\0';
+
+  WideCharToMultiByte(CP_UTF8, 0, utf16, -1, utf8, len, 0, 0);
+  
+  std::ofstream myfile( "winfs.log", std::ios::out | std::ios::binary | std::ios::app ) ;
+  myfile << "UTF16toUTF8() " << len;
+  myfile.write((char*)&utf8, (len) * sizeof(char));
+  myfile << endl;
+  myfile.close();
+  
+  return string(utf8);
 }

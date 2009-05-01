@@ -2,11 +2,59 @@
 
 Win32FSHook *_win32FSHook;
 
-void onFSEvent(int watchID, int action, const WCHAR* rootPath, const WCHAR* filePath)
+#include <iostream>
+#include <fstream>
+void write(string a)
 {
-  int rootPathLength = wcslen(rootPath) * sizeof(WCHAR);
-  int filePathLength = wcslen(filePath) * sizeof(WCHAR);
-  eNotifyCallback(watchID, action, rootPath, rootPathLength, filePath, filePathLength);
+  std::ofstream myfile( "winfs.log", std::ios::out | std::ios::binary | std::ios::app ) ;
+  myfile << a.c_str() << endl;
+  myfile.close();
+}
+
+void writeN(char *x, int l)
+{
+  std::ofstream myfile( "winfs.log", std::ios::out | std::ios::binary | std::ios::app ) ;
+  myfile.write(x, l);
+  myfile.close();
+}
+
+void onFSEvent(int watchID, int action, const WCHAR* rootPathUTF16, const WCHAR* filePathUTF16)
+{
+  /* */
+  write("IN: onFSEvent");
+  /* */
+  
+  // Handle UTF16 by default
+  int rootPathUTF16Length = wcslen(rootPathUTF16) * sizeof(WCHAR);
+  int filePathUTF16Length = wcslen(filePathUTF16) * sizeof(WCHAR);
+  
+  /* // Convert to UTF8 */
+  string a = UTF16toUTF8(rootPathUTF16);
+  string b = UTF16toUTF8(filePathUTF16);
+  const char *rootPathUTF8 = a.c_str();
+  const char *filePathUTF8 = b.c_str();
+  int rootPathUTF8Length = strlen(rootPathUTF8);
+  int filePathUTF8Length = strlen(filePathUTF8);
+  if ((rootPathUTF8Length == 0) or (filePathUTF8Length == 0))
+    return;
+
+  /* * /
+  std::ofstream myfile( "winfs.log", std::ios::out | std::ios::binary | std::ios::app ) ;
+  /* * /
+  myfile << "IN: MIDDLE" << endl;
+  myfile.write((char*)rootPathUTF8, rootPathUTF8Length) << endl;
+  myfile.write((char*)filePathUTF8, filePathUTF8Length) << endl;
+  /* * /
+  myfile.write((char*)rootPathUTF16, rootPathUTF16Length) << endl;
+  myfile.write((char*)filePathUTF16, filePathUTF16Length) << endl;
+  myfile << "OUT: MIDDLE" << endl;
+  /* * /
+  myfile.close();
+  /* */
+  
+  eNotifyCallback(watchID, action, rootPathUTF16, rootPathUTF16Length, filePathUTF16, filePathUTF16Length);
+  eNotifyCallback(watchID, action, rootPathUTF8, rootPathUTF8Length, filePathUTF8, filePathUTF8Length);
+  write("OUT: onFSEvent\n");
 }
 
 int eNotify_init(void)
@@ -22,32 +70,13 @@ int eNotify_init(void)
   }
 }
 
-wstring utf8BinaryToUtf16String(const char* bin, int binLength)
-{
-  // Convert to a regular string
-  char str[binLength + 1];
-  str[binLength] = '\0';
-  for(int i=0; i < binLength; i++) {
-    str[i] = bin[i];
-  }
-  
-  // Check how many WCHAR characters are needed
-  int len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str, binLength+1, NULL, 0);
-  if (len == 0)
-	return 0;
-
-  // Convert data to UTF16
-  WCHAR utf16[len + 1];
-  int n = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str, binLength+1, &utf16[0], len);
-  if (n == 0)
-	return 0;
-  return wstring(utf16);
-}
-
 int eNotify_addWatch2(const char* path, int pathLength)
 {
-  const WCHAR* wPath = (utf8BinaryToUtf16String(path, pathLength)).c_str();
-  bool watchSubdir = true;
+  const WCHAR* wPath = (UTF8BinToUtf16Str(path, pathLength)).c_str();
+  if (wPath == NULL)
+	return 0;
+
+  bool watchSubdir = false;
   long notifyFilter = 7L;
   DWORD error = 0;
   int watchId = _win32FSHook->add_watch(wPath, notifyFilter, watchSubdir, error, onFSEvent);
@@ -113,9 +142,7 @@ void getErrorDescription(int errorCode, WCHAR *buffer, int len)
 	_snwprintf(buffer, len, L"Error %d : %s", errorCode, (LPCTSTR)lpMsgBuf);
 	int len1 = wcslen(buffer);
 	if (len1 >= 2)
-	{
 		buffer[len1 - 2] = '\0';
-	}
 	
 	LocalFree( lpMsgBuf );
 	

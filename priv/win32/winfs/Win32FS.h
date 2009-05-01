@@ -3,9 +3,6 @@
 #include <windows.h>
 #include <winbase.h>
 #include <winnt.h>
-#include <string>
-#include <iostream> // Remove after removing cout
-#include <stdlib.h> // Remove after removing cout
 
 #include "Win32FSHook.h"
 #include "Logger.h"
