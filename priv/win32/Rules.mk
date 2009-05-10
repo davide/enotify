@@ -1,3 +1,4 @@
+
 # Standard things
 
 .SUFFIXES:
@@ -8,15 +9,15 @@ all:		targets
 
 # Subdirectories, in random order
 
-dir	:= erl_bridge
+dir	:= $(PROJECTS_DIR)/enotify
 include		$(dir)/Rules.mk
-dir	:= winfs
+dir	:= $(PROJECTS_DIR)/winfs
 include		$(dir)/Rules.mk
-dir	:= executable
-include		$(dir)/Rules.mk
-
 
 # General directory independent rules
+
+%.beam:		%.erl
+		$(ERL_COMP)
 
 %.o:		%.c
 		$(COMP)

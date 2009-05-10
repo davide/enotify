@@ -28,7 +28,6 @@ extern "C"
 {
   int eNotify_init(void);
   int eNotify_addWatch(const void* path, int pathLength, long notifyFilter, int watchSubdir);
-  int eNotify_addWatch2(const char* path, int pathLength);
   void eNotify_removeWatch(int);
   extern void eNotifyCallback(int watchID, int action, const void* rootPath, int rootPathLength, const void* filePath, int filePathLength);
 }

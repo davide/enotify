@@ -9,10 +9,11 @@ $(EBINDIR):
 	mkdir -p $(EBINDIR)
 
 dependencies:
-	cd priv; cd win32; make
+	cd priv/build/mingw; make
 
 run:
-	werl -pa ebin -s $(APP) start &
+	werl -pa ebin -eval "$(APP):start(\"priv/win32/enotify/mingw/enotify.exe\")" &
 
 clean:
 	rm -rf $(EBINDIR)/*.beam erl_crash.dump
+	cd priv/build/mingw; make clean
