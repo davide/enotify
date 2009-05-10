@@ -100,14 +100,15 @@ void local_add_watch(ETERM* args)
 
 void local_remove_watch(ETERM* args)
 {
+  byte buf[100];
+  ETERM *resp;
   ETERM *watchIDp = erl_element(1, args);
   int watchID = ERL_INT_VALUE(watchIDp);
 
   eNotify_removeWatch(watchID);
 
   // Build response
-  byte buf[100];
-  ETERM *resp = erl_mk_atom("ok"); // alloc resp
+  resp = erl_mk_atom("ok"); // alloc resp
   erl_encode(resp, buf);
   write_cmd(buf, erl_term_len(resp));
   erl_free_term(resp); // free resp
@@ -115,6 +116,11 @@ void local_remove_watch(ETERM* args)
 
 int main()
 {
+  ETERM *tuplep;
+  ETERM *fnp;
+  ETERM *args;
+  byte buf[100];
+  const char* func_name;
 
 #ifdef __WIN32__
   /* Attention Windows programmers: you need [to pay Serge Aleynikov a
@@ -127,13 +133,6 @@ int main()
 #endif
 
   eNotify_init();
-  
-  ETERM *tuplep;
-  ETERM *fnp;
-  ETERM *args;
-  byte buf[100];
-  const char* func_name;
-
   erl_init(NULL, 0);
 
   while (read_cmd(buf) > 0) {
@@ -190,19 +189,19 @@ void eNotifyCallback(int watchID, int action, const void* rootPath, int rootPath
 {
  // MAX_FILE_PATHNAME_LENGTH * 2 because we are passing 2 paths
   byte buf[MAX_FILE_PATHNAME_LENGTH*2];
+  ETERM *tuplep;
 
   // Build response
-  int tupleArrayLen = 4;
-  ETERM *tupleArray[tupleArrayLen];
+  ETERM *tupleArray[4];
   tupleArray[0] = erl_mk_int(watchID);
   tupleArray[1] = erl_mk_int(action);
   tupleArray[2] = erl_mk_binary(rootPath, rootPathLength);
   tupleArray[3] = erl_mk_binary(filePath, filePathLength);
-  ETERM *tuplep = erl_mk_tuple(tupleArray, tupleArrayLen);
+  tuplep = erl_mk_tuple(tupleArray, 4);
 
   erl_encode(tuplep, buf);
   write_cmd(buf, erl_term_len(tuplep));
 
   // free contents from tupleArray
-  erl_free_array(tupleArray, tupleArrayLen);
+  erl_free_array(tupleArray, 4);
 }

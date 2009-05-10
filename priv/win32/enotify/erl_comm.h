@@ -1,5 +1,9 @@
+#ifdef __WIN32__
+#include <io.h>
+#else
 #include <unistd.h>
 #include <sys/types.h>
+#endif
 
 typedef unsigned char byte;
 
