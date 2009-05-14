@@ -5,7 +5,7 @@ int read_exact(byte *buf, int len)
   int i, got=0;
 
   do {
-    if ((i = read(0, buf+got, len-got)) <= 0)
+    if ((i = _read(0, buf+got, len-got)) <= 0)
       return(i);
     got += i;
   } while (got<len);
@@ -18,7 +18,7 @@ int write_exact(byte *buf, int len)
   int i, wrote = 0;
 
   do {
-    if ((i = write(1, buf+wrote, len-wrote)) <= 0)
+    if ((i = _write(1, buf+wrote, len-wrote)) <= 0)
       return (i);
     wrote += i;
   } while (wrote<len);

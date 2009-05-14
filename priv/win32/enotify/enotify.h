@@ -5,5 +5,6 @@
 extern int eNotify_init(void);
 extern int eNotify_addWatch(const void* path, int pathLength, long notifyFilter, int watchSubdir);
 extern void eNotify_removeWatch(int);
+extern void eNotify_getErrorDesc(long, char*, int);
 
 void eNotifyCallback(int watchID, int action, const void* rootPath, int rootPathLength, const void* filePath, int filePathLength);

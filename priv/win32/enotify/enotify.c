@@ -114,6 +114,23 @@ void local_remove_watch(ETERM* args)
   erl_free_term(resp); // free resp
 }
 
+void local_get_error_desc(ETERM* args)
+{
+  byte buf[100];
+  ETERM *resp;
+  ETERM *errorCodep = erl_element(1, args);
+  long errorCode = (long)ERL_INT_VALUE(errorCodep);
+
+  char errorDesc[1024];
+  eNotify_getErrorDesc(errorCode, errorDesc, 1024);
+
+  // Build response
+  resp = erl_mk_string(errorDesc); // alloc resp
+  erl_encode(resp, buf);
+  write_cmd(buf, erl_term_len(resp));
+  erl_free_term(resp); // free resp
+}
+
 int main()
 {
   ETERM *tuplep;
@@ -128,8 +145,8 @@ int main()
    * on windows :)] explicitly set mode of stdin/stdout to binary or
    * else the port program won't work.
    */
-  _setmode(_fileno(stdout), O_BINARY);
-  _setmode(_fileno(stdin), O_BINARY);
+  _setmode(_fileno(stdout), _O_BINARY);
+  _setmode(_fileno(stdin), _O_BINARY);
 #endif
 
   eNotify_init();
@@ -143,7 +160,11 @@ int main()
     args = erl_element(2, tuplep);
 
     // MATCH FIRST! -> REMEMBER THAT!
-    if (strncmp(func_name, "add_watch", 9) == 0)
+    if (strncmp(func_name, "get_error_desc", 14) == 0)
+      {
+		local_get_error_desc(args);
+      }
+    else if (strncmp(func_name, "add_watch", 9) == 0)
       {
 	local_add_watch(args);
       }

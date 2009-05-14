@@ -11,7 +11,9 @@ void onFSEvent(int watchID, int action, const WCHAR* rootPathUTF16, const WCHAR*
   const char *filePathUTF8 = b.c_str();
   int rootPathUTF8Length = strlen(rootPathUTF8);
   int filePathUTF8Length = strlen(filePathUTF8);
-  if ((rootPathUTF8Length == 0) or (filePathUTF8Length == 0))
+  if (0 == rootPathUTF8Length)
+	return;
+  if (0 == filePathUTF8Length)
     return;
   
   eNotifyCallback(watchID, action, rootPathUTF8, rootPathUTF8Length, filePathUTF8, filePathUTF8Length);
@@ -35,11 +37,12 @@ int eNotify_addWatch(const void* path, int pathLength, long notifyFilter, int in
   bool watchSubdir = (int_watchSubdir != 0);
   DWORD error = 0;
 
-  const WCHAR* wPath = (UTF8BinToUtf16Str((const char*)path, pathLength)).c_str();
-  if (wPath == NULL)
+  wstring wcsPath = UTF8BinToUtf16Str((const char*)path, pathLength);
+  const WCHAR* wPath = wcsPath.c_str();
+  if (wcslen(wPath) == 0)
 	return 0;
-  int watchId = _win32FSHook->add_watch(wPath, notifyFilter, watchSubdir, error, onFSEvent);
 
+  int watchId = _win32FSHook->add_watch(wPath, notifyFilter, watchSubdir, error, onFSEvent);
   if (watchId == 0)
     return -error;
   return watchId;
@@ -50,17 +53,7 @@ void eNotify_removeWatch(int watchId)
   _win32FSHook->remove_watch(watchId);
 }
 
-void getErrorDescription(int errorCode, WCHAR *buffer, int len);
-
-/* WARNING: allocates memory! */
-const WCHAR* getErrorDesc(long errorCode)
-{
-	WCHAR buffer[1024];
-	getErrorDescription(errorCode, buffer, sizeof(buffer) / sizeof(WCHAR));
-	return NULL; //buffer;
-}
-
-void getErrorDescription(int errorCode, WCHAR *buffer, int len)
+void eNotify_getErrorDesc(long errorCode, char *buffer, int len)
 {
 	static Lock lock;
 	lock.lock();
@@ -78,8 +71,10 @@ void getErrorDescription(int errorCode, WCHAR *buffer, int len)
 	    NULL 
 	);
 
-	_snwprintf(buffer, len, L"Error %d : %s", errorCode, (LPCTSTR)lpMsgBuf);
-	int len1 = wcslen(buffer);
+	UTF16toUTF8_inBuffer((WCHAR*)lpMsgBuf, buffer, len);
+
+	// Ditch the final \r\n in the message
+	int len1 = strlen(buffer);
 	if (len1 >= 2)
 		buffer[len1 - 2] = '\0';
 	

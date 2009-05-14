@@ -12,7 +12,7 @@ dependencies:
 	cd priv/build/mingw; make
 
 run:
-	werl -pa ebin -eval "$(APP):start(\"priv/win32/enotify/mingw/enotify.exe\")" &
+	werl -pa ebin -eval "code:load_file($(APP))" &
 
 clean:
 	rm -rf $(EBINDIR)/*.beam erl_crash.dump

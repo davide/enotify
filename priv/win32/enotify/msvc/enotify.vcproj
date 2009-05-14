@@ -49,7 +49,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
-				CompileAs="2"
+				CompileAs="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -64,9 +64,9 @@
 				Name="VCLinkerTool"
 				UseLibraryDependencyInputs="true"
 				AdditionalOptions="&#x0D;&#x0A;"
-				AdditionalDependencies="erl_interface.lib ei.lib wsock32.lib"
+				AdditionalDependencies="erl_interface.lib ei.lib wsock32.lib winfs.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="C:\erl5.7.1\lib\erl_interface-3.6.1\lib"
+				AdditionalLibraryDirectories="&quot;C:\erl5.7.1\lib\erl_interface-3.6.1\lib&quot;;..\..\winfs\msvc\Release"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -127,7 +127,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
-				CompileAs="2"
+				CompileAs="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -142,9 +142,9 @@
 				Name="VCLinkerTool"
 				UseLibraryDependencyInputs="false"
 				AdditionalOptions="/NODEFAULTLIB:libc.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:libcd.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib"
-				AdditionalDependencies="erl_interface.lib ei.lib wsock32.lib"
+				AdditionalDependencies="erl_interface.lib ei.lib wsock32.lib winfs.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="C:\erl5.7.1\lib\erl_interface-3.6.1\lib"
+				AdditionalLibraryDirectories="&quot;C:\erl5.7.1\lib\erl_interface-3.6.1\lib&quot;;..\..\winfs\msvc\Release"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -190,30 +190,6 @@
 				RelativePath="..\erl_comm.c"
 				>
 			</File>
-			<File
-				RelativePath="..\..\winfs\Lock.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\winfs\Logger.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\winfs\WatchData.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\winfs\Win32FS.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\winfs\Win32FSHook.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\winfs\WinString.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -226,30 +202,6 @@
 			</File>
 			<File
 				RelativePath="..\erl_comm.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\winfs\Lock.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\winfs\Logger.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\winfs\WatchData.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\winfs\Win32FS.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\winfs\Win32FSHook.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\winfs\WinString.h"
 				>
 			</File>
 		</Filter>
