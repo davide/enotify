@@ -12,7 +12,7 @@ dependencies:
 	cd priv/build/mingw; make
 
 run:
-	werl -pa ebin -eval "code:load_file($(APP))" &
+	werl -pa ebin -eval "application:start($(APP)_app)" &
 
 clean:
 	rm -rf $(EBINDIR)/*.beam erl_crash.dump
