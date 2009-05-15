@@ -33,13 +33,13 @@ int process_command(const char *command, char *buf, int *index, note_t *nlist) {
   }
 
   if (!strcmp("add", command)) {
-    /* function int = add(int fd, char *path, int mask) */
+    /* function int = add(char *path, int mask) */
     note_add(nlist, buf, index);
     return(0);
   }
   
   if (!strcmp("remove", command)) {
-    /* function remove(fd, wd)  */
+    /* function remove(wd)  */
     note_remove(nlist, buf, index);
     return(0);
   }
