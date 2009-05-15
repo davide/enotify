@@ -11,7 +11,8 @@
 
 %% API
 -export([start_link/2,
-	 add_watch/3
+	 add_watch/3,
+	 remove_watch/1
 	]).
 
 %% gen_server callbacks
@@ -36,6 +37,13 @@ start_link(ExtProg, PortModule) ->
 %%--------------------------------------------------------------------
 add_watch(Dir, Filters, WatchSubdir) when is_boolean(WatchSubdir) ->
     gen_server:call(?MODULE, {add_watch, Dir, Filters, WatchSubdir}).
+
+%%--------------------------------------------------------------------
+%% Function: remove_watch(WatchId) -> Any
+%% Description: Removed a directory monitor
+%%--------------------------------------------------------------------
+remove_watch(WatchId) when is_integer(WatchId) ->
+    gen_server:call(?MODULE, {remove_watch, WatchId}).
 
 
 %%====================================================================

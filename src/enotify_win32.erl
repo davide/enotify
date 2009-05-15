@@ -19,7 +19,10 @@ pre_port_command({add_watch, Dir, Filters, WatchSubdir}) ->
 	    {command, {add_watch, {BinDir, Mask, watch_subdir(WatchSubdir)}}};
 	Other ->
 	    {response, Other}
-    end.
+    end;
+pre_port_command({remove_watch, WatchId}) ->
+    {command, {remove_watch, {WatchId}}}.
+
 
 post_port_command(timeout) -> timeout;
 post_port_command(What) -> What.
