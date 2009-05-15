@@ -3,7 +3,6 @@
 include ../BuildConfig.mk
 
 TARGET=mingw
-BIN_EXT=.exe
 
 ERL_INTERFACE_DIR=c:/erl5.7.1/lib/erl_interface-3.6.1
 ERL_INTERFACE_LIBRARY_BINDING=-L$(ERL_INTERFACE_DIR)/lib -lerl_interface_md -lei_md

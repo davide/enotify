@@ -3,7 +3,6 @@
 include ../BuildConfig.mk
 
 TARGET=mingw_vc
-BIN_EXT=.exe
 
 ERL_INTERFACE_DIR=c:/erl5.7.1/lib/erl_interface-3.6.1
 VC_DIR=c:/Progra~1/VS9.0/VC

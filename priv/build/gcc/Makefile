@@ -1,11 +1,8 @@
 # http://www.xs4all.nl/~evbergen/nonrecursive-make.html
 
 include ../BuildConfig.mk
-ERL_INTERFACE_DIR=/usr/local/lib/erlang/lib/erl_interface-3.6.1
-
 
 TARGET=gcc
-BIN_EXT=
 
 ERL_INTERFACE_LIBRARY_BINDING=-L$(ERL_INTERFACE_DIR)/lib -lerl_interface -lei
 
