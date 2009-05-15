@@ -90,12 +90,37 @@ void local_add_watch(ETERM* args)
 
   int watchID = eNotify_addWatch(path, pathLength, notifyFilter, watchSubdirs);
 
-  // Build response
-  byte buf[100];
-  ETERM *resp = erl_mk_int(watchID); // alloc resp
-  erl_encode(resp, buf);
-  write_cmd(buf, erl_term_len(resp));
-  erl_free_term(resp); // free resp
+  // Prepare response
+  ETERM *tuplep;
+  ETERM *tupleArray[2];
+
+  if (watchID < 0)
+  {
+	  long errorCode = (long)(-watchID);
+	  char errorDesc[1024];
+	  eNotify_getErrorDesc(errorCode, errorDesc, 1024);
+	  tupleArray[0] = erl_mk_atom("error");
+	  tupleArray[1] = erl_mk_string(errorDesc);
+  }
+  else if (0 == watchID)
+  {
+	  // this may happen if there's a problem converting
+	  // a path from utf8 to UTF16
+	  tupleArray[0] = erl_mk_atom("error");
+	  tupleArray[1] = erl_mk_string("internal_error");
+  }
+  else
+  {
+	  tupleArray[0] = erl_mk_atom("ok");
+	  tupleArray[1] = erl_mk_int(watchID);
+  }
+
+  char buf[1024];
+  tuplep = erl_mk_tuple(tupleArray, 2);
+  erl_encode(tuplep, buf);
+  write_cmd(buf, erl_term_len(tuplep));
+
+  erl_free_array(tupleArray, 2); // free contents from tupleArray
 }
 
 void local_remove_watch(ETERM* args)
